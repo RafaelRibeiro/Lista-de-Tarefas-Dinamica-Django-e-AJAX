@@ -260,8 +260,33 @@ Curso: https://www.udemy.com/course/pythondjango-construindo-uma-lista-de-tarefa
 - **Cria as migrations**
 
     **Migrations.**
-    ```python
-    python manage.py makemigrations
-    ```
 
+    # Cria os arquivos de migração com base nas alterações feitas nos modelos.
+    # Esse comando gera os scripts necessários para criar ou atualizar as tabelas no banco de dados.
+        ```python
+        python manage.py makemigrations
+        ```
+
+    # Executa as migrações no banco de dados, aplicando as mudanças definidas no passo anterior.
+    # Cria as tabelas, campos e relações conforme os modelos do projeto.
+        ```python
+        python manage.py migrate
+        ```
+
+    # Cria um superusuário (administrador) para acessar o painel de administração do Django.
+    # Durante a execução, será solicitado um nome de usuário, e-mail e senha.
+        ```python
+        python manage.py createsuperuser
+        ```
+
+</details>
+
+- **Status**
+        
+    - **Adição de Status**
+            # Define os diferentes estados que uma tarefa pode assumir:
+            # ⛔️ A Fazer
+            # ⚠️ Fazendo
+            # ✅ Finalizado
+    
 </details>
