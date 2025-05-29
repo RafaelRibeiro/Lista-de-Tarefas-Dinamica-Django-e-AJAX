@@ -256,3 +256,12 @@ Curso: https://www.udemy.com/course/pythondjango-construindo-uma-lista-de-tarefa
     ```
 
 </details>
+
+- **Cria as migrations**
+
+    **Migrations.**
+    ```python
+    python manage.py makemigrations
+    ```
+
+</details>
