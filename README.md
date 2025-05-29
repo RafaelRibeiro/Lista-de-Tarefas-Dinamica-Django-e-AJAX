@@ -1,5 +1,7 @@
 # Django Configuração de Projeto Padrão (Simples)
 
+Curso: https://www.udemy.com/course/pythondjango-construindo-uma-lista-de-tarefas-dinamica-com-ajax
+
 **Configurações Iniciais**
 
 <details><summary><b>Ambiente Virtual Linux/Windows</b></summary>
