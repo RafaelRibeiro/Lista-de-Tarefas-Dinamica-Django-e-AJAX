@@ -1,86 +1,157 @@
-{% extends 'base.html' %}               <!-- Usa o template base.html como base -->
-{% block title %}Pagina 1{% endblock %} <!-- Define o título da aba -->
-{% block content %}                     <!-- Conteúdo principal da página -->
+{% extends 'base.html' %} <!-- Herda o layout base.html -->
 
-	<h2>Pagina 1</h2> 
+{% block title %}Pagina 1{% endblock %} <!-- Define o título da aba do navegador -->
 
-	<div class="p-5">
+{% block content %} <!-- Início do conteúdo principal da página -->
 
-        <!-- Formulário para adicionar novo item -->
+	<h2>Pagina 1</h2> <!-- Título da página -->
+
+	<div class="p-5"> <!-- Container com padding -->
+
+		<!-- Formulário para adicionar novo item -->
 		<form class="d-flex gap-4 col-md-6" method="POST"> 
-	      {% csrf_token %}  <!-- Token de segurança do Django -->
-			<button type="submit" class="btn btn-success"><i class="fa fa-plus"></i></button> 
-			{{form}}  <!-- Campo do formulário para o título -->
+			{% csrf_token %} <!-- Token de segurança contra ataques CSRF -->
+			<button type="submit" class="btn btn-success">
+				<i class="fa fa-plus"></i>
+			</button> <!-- Botão de adicionar -->
+			{{form}} <!-- Renderiza o campo do formulário (campo título) -->
 		</form>    
 
+		<!-- Tabela para listar os itens -->
 		<table class="table"> 
-            <thead>
-                <tr>
-                    <th scope="col">Titulo</th> 
-                    <th scope="col">Status</th>
-                    <th scope="col">Deletar</th> 
-                </tr>
-            </thead>
+			<thead>
+				<tr>
+					<th scope="col">Titulo</th> <!-- Cabeçalho da coluna Título -->
+					<th scope="col">Status</th> <!-- Cabeçalho da coluna Status -->
+					<th scope="col">Deletar</th> <!-- Cabeçalho da coluna Deletar -->
+				</tr>
+			</thead>
 
-            {% for el in todo %}  <!-- Loop para listar todos os itens -->
-            <tbody>
-                <tr class="table align-middle">
+			<!-- Loop pelos itens cadastrados -->
+			{% for el in todo %}
+			<tbody>
+				<tr class="table align-middle"> <!-- Linha da tabela -->
 
-                    <th scope="row">
-                        <div class="title" id="title{{el.id}}" data-title="{{el.id}}">{{el.title}}</div>  <!-- Título visível -->
-                        
-                        <!-- Formulário para editar título, inicialmente escondido -->
-                        <form class="d-none d-flex" id="form-title{{el.id}}" method="GET" style="width:35rem;">
-                            <input class="form-control" type="text" id="inputText{{el.id}}" value="{{el.title}}">
-                            <button type="submit" class="btn" id="edit{{el.id}}"><i class="fa fa-edit link-warning"></i></button>
-                        </form>
-                    </th> 
+					<!-- Coluna do Título -->
+					<th scope="row">
+						<!-- Título exibido como texto -->
+						<div class="title" id="title{{el.id}}" data-title="{{el.id}}">
+							{{el.title}}
+						</div>
 
-                    <th scope="row">{{el.status}}</th>  <!-- Mostra status do item -->
-                    <th scope="row">
-						<a class="btn" href="{% url 'delete' el.id %}"><i class="fa fa-trash link-danger"></i></a> <!-- Botão para deletar -->
-				    </th> 
-                </tr>
-            </tbody>
-            {% endfor %}
+						<!-- Formulário escondido para editar título -->
+						<form class="d-none d-flex" id="form-title{{el.id}}" method="GET" style="width:35rem;">
+							<input class="form-control" type="text" id="inputText{{el.id}}" value="{{el.title}}">
+							<button type="submit" class="btn" id="edit{{el.id}}">
+								<i class="fa fa-edit link-warning"></i>
+							</button>
+						</form>
+					</th>
 
-        </table>    
+					<!-- Coluna do Status -->
+					<th scope="row">
+						{{el.status}} <!-- Exibe o status atual -->
 
-	</div> 
-{% endblock %}
+						<!-- Select para alterar o status -->
+						<div class="SelDiv">
+							<select class="form-select" name="status" id="{{el.id}}">
+								{% for st in status_list %}
+									<option value="{{st.id}}" 
+										{% if el.status.id == st.id %}selected{% endif %}>
+										{{st.name}}
+									</option>
+								{% endfor %}
+							</select>
+						</div>
+					</th>
 
-{% block scripts %}
+					<!-- Coluna do Deletar -->
+					<th scope="row">
+						<a class="btn" href="{% url 'delete' el.id %}">
+							<i class="fa fa-trash link-danger"></i>
+						</a> <!-- Botão de deletar -->
+					</th>
+				</tr>
+			</tbody>
+			{% endfor %} <!-- Fim do loop -->
+
+		</table> <!-- Fim da tabela -->
+
+	</div> <!-- Fim do container -->
+{% endblock %} <!-- Fim do bloco de conteúdo -->
+
+
+
+{% block scripts %} <!-- Início do bloco de scripts JavaScript -->
 <script type="text/javascript"> 
-	// Quando clica no título, abre o formulário de edição
-	$("div.title").click(function () {
-		var data_id = $(this).attr("data-title");  // Pega o id do item
-        console.log(`Cliquei no ID do Titulo ${data_id}`);
 
-		$("form#form-title" + data_id).removeClass('d-none')  // Mostra o formulário
-		$("div#title" + data_id).addClass('d-none')           // Esconde o título normal
-	
+	// ============================
+	// Atualização do Título
+	// ============================
+	$("div.title").click(function () {
+		// Quando clica no título, esconde o título e mostra o formulário de edição
+		var data_id = $(this).attr("data-title"); // Pega o ID do item clicado
+		console.log(`Cliquei no ID do Titulo ${data_id}`);
+
+		// Mostra o formulário de edição
+		$("form#form-title" + data_id).removeClass('d-none');
+		// Esconde o texto do título
+		$("div#title" + data_id).addClass('d-none');
+
+		// Quando clica no botão de editar
 		$('button#edit' + data_id).on("click", function (e) {
-			e.preventDefault();  // Evita o envio padrão do form
-		  
-			title = $('input#inputText'+ data_id).val();  // Pega novo título
-            console.log(`Cliquei na Edição do Titulo ${title}`);
- 
-			// AJAX para atualizar título no servidor
+			e.preventDefault(); // Impede que o formulário envie da forma padrão
+
+			// Pega o novo valor do input
+			title = $('input#inputText' + data_id).val();
+			console.log(`Cliquei na Edição do Titulo ${title}`);
+
+			// Envia requisição AJAX para atualizar o título no backend
 			$.ajax({
 				type: 'GET',
-				url: '{% url "update-item" %}',
-				data: {'data_id': data_id,'title': title,},
+				url: '{% url "update-item" %}', // URL que trata a atualização
+				data: {
+					'data_id': data_id,
+					'title': title,
+				},
 				datatype: "json",
 				success: function (data) {
+					// Se deu certo, atualiza o texto do título na interface
 					if (data.status == "update-item") {
-						$("form#form-title" + data_id).addClass('d-none');  // Esconde o form
-						$("div#title" + data_id).removeClass('d-none');      // Mostra o título atualizado
-						$("#title" + data_id).html(data.title);              // Atualiza o texto do título
-					}  
+						$("form#form-title" + data_id).addClass('d-none'); // Esconde o form
+						$("div#title" + data_id).removeClass('d-none');    // Mostra o título
+						$("#title" + data_id).html(data.title);            // Atualiza o texto
+					}
 				}
-			}); 
+			});
+		});
+	});
 
+
+	// ============================
+	// Atualização do Status
+	// ============================
+	$("div.SelDiv select").on('change', function () {
+		// Quando o select é alterado
+		var data_id = this.id; // ID do item
+		var status_id = $(this).find('option').filter(':selected').val(); // Novo status selecionado
+
+		console.log("data_id: ", data_id, "status_id: ", status_id);
+
+		// Envia requisição AJAX para atualizar o status
+		$.ajax({
+			type: 'GET',
+			url: '{% url "update-status" %}', // URL que trata atualização de status
+			data: {
+				'data_id': data_id,
+				'status_id': status_id,
+			},
+			datatype: "json",
+			success: function (data) {
+				// Apenas log
+				console.log(data);
+			}
 		});
 	});
 </script> 
-{% endblock %}
+{% endblock %} <!-- Fim do bloco de scripts -->
