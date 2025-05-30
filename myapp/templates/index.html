@@ -1,30 +1,18 @@
-{% extends 'base.html' %}  <!-- Usa o template base.html como base -->
+{% extends 'base.html' %}               <!-- Usa o template base.html como base -->
+{% block title %}Pagina 1{% endblock %} <!-- Define o título da aba -->
+{% block content %}                     <!-- Conteúdo principal da página -->
 
-{% block title %}Django Projeto 2: TO DO LIST{% endblock %}  <!-- Define o título da aba -->
+	<h2>Pagina 1</h2> 
 
-{% block styles %}  <!-- Bloco de estilos CSS -->
-    <style>
-        .check-status {
-            text-decoration: line-through;  /* Riscado */
-            color: #cbcbcb;  /* Cor cinza claro */
-        }
-    </style>
-{% endblock styles %} 
+	<div class="p-5">
 
-{% block content %}  <!-- Conteúdo da página -->
-    <div class="p-5"> 
-	    <h2>TodoList</h2>  
-
-		<!-- Formulário para adicionar item -->
+        <!-- Formulário para adicionar novo item -->
 		<form class="d-flex gap-4 col-md-6" method="POST"> 
-	        {% csrf_token %}  <!-- Token de segurança -->
-			<button type="submit" class="btn btn-success">
-                <i class="fa fa-plus"></i>
-            </button>  <!-- Botão adicionar -->
-			{{form}}  <!-- Campo title -->
-		</form>     
+	      {% csrf_token %}  <!-- Token de segurança do Django -->
+			<button type="submit" class="btn btn-success"><i class="fa fa-plus"></i></button> 
+			{{form}}  <!-- Campo do formulário para o título -->
+		</form>    
 
-		<!-- Tabela da lista -->
 		<table class="table"> 
             <thead>
                 <tr>
@@ -34,49 +22,65 @@
                 </tr>
             </thead>
 
-            {% for el in todo %}  <!-- Loop nos itens -->
+            {% for el in todo %}  <!-- Loop para listar todos os itens -->
             <tbody>
-                <tr class="table align-middle" id="{{el.id}}"> 
+                <tr class="table align-middle">
 
-                    <!-- Título -->
-                    <th scope="row"> 
-                        <div class="title {% if el.status.id == 3 %}check-status{% endif %}" 
-                             id="title{{el.id}}" data-title="{{el.id}}">
-                             {{el.title}}
-                        </div> 
+                    <th scope="row">
+                        <div class="title" id="title{{el.id}}" data-title="{{el.id}}">{{el.title}}</div>  <!-- Título visível -->
                         
-                        <!-- Form editar título -->
+                        <!-- Formulário para editar título, inicialmente escondido -->
                         <form class="d-none d-flex" id="form-title{{el.id}}" method="GET" style="width:35rem;">
                             <input class="form-control" type="text" id="inputText{{el.id}}" value="{{el.title}}">
-                            <button type="submit" class="btn" id="edit{{el.id}}">
-                                <i class="fa fa-edit link-warning"></i>
-                            </button>
-                        </form> 
-                    </th>  
-  
-                    <!-- Status -->
-                    <th scope="row">  
-                        <div class="SelDiv">
-                            <select class="form-select" name="status" id="{{el.id}}">
-                                {% for st in status_list %}
-                                <option value="{{st.id}}" {% if el.status.id == st.id %}selected{% endif %}>
-                                    {{st.name}}
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div> 
+                            <button type="submit" class="btn" id="edit{{el.id}}"><i class="fa fa-edit link-warning"></i></button>
+                        </form>
                     </th> 
 
-                    <!-- Botão deletar -->
+                    <th scope="row">{{el.status}}</th>  <!-- Mostra status do item -->
                     <th scope="row">
-                        <a class="btn" id="btn-delete" data-delete="{{el.id}}">
-                            <i class="fa fa-trash link-danger"></i>
-                        </a>
-				 	</th> 
-
+						<a class="btn" href="{% url 'delete' el.id %}"><i class="fa fa-trash link-danger"></i></a> <!-- Botão para deletar -->
+				    </th> 
                 </tr>
-            </tbody>  
+            </tbody>
             {% endfor %}
+
         </table>    
+
 	</div> 
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript"> 
+	// Quando clica no título, abre o formulário de edição
+	$("div.title").click(function () {
+		var data_id = $(this).attr("data-title");  // Pega o id do item
+        console.log(`Cliquei no ID do Titulo ${data_id}`);
+
+		$("form#form-title" + data_id).removeClass('d-none')  // Mostra o formulário
+		$("div#title" + data_id).addClass('d-none')           // Esconde o título normal
+	
+		$('button#edit' + data_id).on("click", function (e) {
+			e.preventDefault();  // Evita o envio padrão do form
+		  
+			title = $('input#inputText'+ data_id).val();  // Pega novo título
+            console.log(`Cliquei na Edição do Titulo ${title}`);
+ 
+			// AJAX para atualizar título no servidor
+			$.ajax({
+				type: 'GET',
+				url: '{% url "update-item" %}',
+				data: {'data_id': data_id,'title': title,},
+				datatype: "json",
+				success: function (data) {
+					if (data.status == "update-item") {
+						$("form#form-title" + data_id).addClass('d-none');  // Esconde o form
+						$("div#title" + data_id).removeClass('d-none');      // Mostra o título atualizado
+						$("#title" + data_id).html(data.title);              // Atualiza o texto do título
+					}  
+				}
+			}); 
+
+		});
+	});
+</script> 
 {% endblock %}
