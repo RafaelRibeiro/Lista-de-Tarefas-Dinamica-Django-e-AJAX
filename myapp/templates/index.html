@@ -1,7 +1,82 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %}  <!-- Usa o template base.html como base -->
 
-{% block title %}Pagina Inicial{% endblock %}
+{% block title %}Django Projeto 2: TO DO LIST{% endblock %}  <!-- Define o título da aba -->
 
-{% block content %}
-	<h1>Pagina Inicial</h1>
+{% block styles %}  <!-- Bloco de estilos CSS -->
+    <style>
+        .check-status {
+            text-decoration: line-through;  /* Riscado */
+            color: #cbcbcb;  /* Cor cinza claro */
+        }
+    </style>
+{% endblock styles %} 
+
+{% block content %}  <!-- Conteúdo da página -->
+    <div class="p-5"> 
+	    <h2>TodoList</h2>  
+
+		<!-- Formulário para adicionar item -->
+		<form class="d-flex gap-4 col-md-6" method="POST"> 
+	        {% csrf_token %}  <!-- Token de segurança -->
+			<button type="submit" class="btn btn-success">
+                <i class="fa fa-plus"></i>
+            </button>  <!-- Botão adicionar -->
+			{{form}}  <!-- Campo title -->
+		</form>     
+
+		<!-- Tabela da lista -->
+		<table class="table"> 
+            <thead>
+                <tr>
+                    <th scope="col">Titulo</th> 
+                    <th scope="col">Status</th>
+                    <th scope="col">Deletar</th> 
+                </tr>
+            </thead>
+
+            {% for el in todo %}  <!-- Loop nos itens -->
+            <tbody>
+                <tr class="table align-middle" id="{{el.id}}"> 
+
+                    <!-- Título -->
+                    <th scope="row"> 
+                        <div class="title {% if el.status.id == 3 %}check-status{% endif %}" 
+                             id="title{{el.id}}" data-title="{{el.id}}">
+                             {{el.title}}
+                        </div> 
+                        
+                        <!-- Form editar título -->
+                        <form class="d-none d-flex" id="form-title{{el.id}}" method="GET" style="width:35rem;">
+                            <input class="form-control" type="text" id="inputText{{el.id}}" value="{{el.title}}">
+                            <button type="submit" class="btn" id="edit{{el.id}}">
+                                <i class="fa fa-edit link-warning"></i>
+                            </button>
+                        </form> 
+                    </th>  
+  
+                    <!-- Status -->
+                    <th scope="row">  
+                        <div class="SelDiv">
+                            <select class="form-select" name="status" id="{{el.id}}">
+                                {% for st in status_list %}
+                                <option value="{{st.id}}" {% if el.status.id == st.id %}selected{% endif %}>
+                                    {{st.name}}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div> 
+                    </th> 
+
+                    <!-- Botão deletar -->
+                    <th scope="row">
+                        <a class="btn" id="btn-delete" data-delete="{{el.id}}">
+                            <i class="fa fa-trash link-danger"></i>
+                        </a>
+				 	</th> 
+
+                </tr>
+            </tbody>  
+            {% endfor %}
+        </table>    
+	</div> 
 {% endblock %}
