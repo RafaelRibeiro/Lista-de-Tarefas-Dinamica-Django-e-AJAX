@@ -1,157 +1,220 @@
-{% extends 'base.html' %} <!-- Herda o layout base.html -->
+{% extends 'base.html' %} <!-- Herda o template base.html -->
 
 {% block title %}Pagina 1{% endblock %} <!-- Define o título da aba do navegador -->
 
-{% block content %} <!-- Início do conteúdo principal da página -->
+{% block content %} <!-- Início do bloco de conteúdo da página -->
 
-	<h2>Pagina 1</h2> <!-- Título da página -->
+<h2>Pagina 1</h2> <!-- Cabeçalho da página -->
 
-	<div class="p-5"> <!-- Container com padding -->
+<div class="p-5"> <!-- Div container com padding -->
 
-		<!-- Formulário para adicionar novo item -->
-		<form class="d-flex gap-4 col-md-6" method="POST"> 
-			{% csrf_token %} <!-- Token de segurança contra ataques CSRF -->
-			<button type="submit" class="btn btn-success">
-				<i class="fa fa-plus"></i>
-			</button> <!-- Botão de adicionar -->
-			{{form}} <!-- Renderiza o campo do formulário (campo título) -->
-		</form>    
+    <!-- Formulário para adicionar novo item -->
+    <form class="d-flex gap-4 col-md-6" method="POST"> <!-- Formulário em linha com espaçamento -->
+        {% csrf_token %} <!-- Token de proteção contra CSRF -->
+        <button type="submit" class="btn btn-success"> <!-- Botão de adicionar item -->
+            <i class="fa fa-plus"></i> <!-- Ícone de mais dentro do botão -->
+        </button>
+        {{form}} <!-- Campo de formulário gerado automaticamente (provavelmente um input de texto) -->
+    </form> <!-- Fim do formulário -->
 
-		<!-- Tabela para listar os itens -->
-		<table class="table"> 
-			<thead>
-				<tr>
-					<th scope="col">Titulo</th> <!-- Cabeçalho da coluna Título -->
-					<th scope="col">Status</th> <!-- Cabeçalho da coluna Status -->
-					<th scope="col">Deletar</th> <!-- Cabeçalho da coluna Deletar -->
-				</tr>
-			</thead>
+    <!-- Tabela que lista os itens -->
+    <table class="table"> <!-- Início da tabela -->
+        <thead> <!-- Cabeçalho da tabela -->
+            <tr> <!-- Linha do cabeçalho -->
+                <th scope="col">Titulo</th> <!-- Coluna título -->
+                <th scope="col">Status</th> <!-- Coluna status -->
+                <th scope="col">Deletar</th> <!-- Coluna deletar -->
+            </tr>
+        </thead>
 
-			<!-- Loop pelos itens cadastrados -->
-			{% for el in todo %}
-			<tbody>
-				<tr class="table align-middle"> <!-- Linha da tabela -->
+        <!-- Loop que percorre cada item da lista 'todo' -->
+        {% for el in todo %}
+        <tbody> <!-- Corpo da tabela -->
+            <tr class="table align-middle" id="{{el.id}}"> <!-- Linha da tabela com ID único do item -->
 
-					<!-- Coluna do Título -->
-					<th scope="row">
-						<!-- Título exibido como texto -->
-						<div class="title" id="title{{el.id}}" data-title="{{el.id}}">
-							{{el.title}}
-						</div>
+                <!-- Coluna do título -->
+                <th scope="row">
+                    <!-- Div que exibe o título atual -->
+                    <div class="title" id="title{{el.id}}" data-title="{{el.id}}">
+                        {{el.title}} <!-- Exibe o texto do título -->
+                    </div>
 
-						<!-- Formulário escondido para editar título -->
-						<form class="d-none d-flex" id="form-title{{el.id}}" method="GET" style="width:35rem;">
-							<input class="form-control" type="text" id="inputText{{el.id}}" value="{{el.title}}">
-							<button type="submit" class="btn" id="edit{{el.id}}">
-								<i class="fa fa-edit link-warning"></i>
-							</button>
-						</form>
-					</th>
+                    <!-- Formulário oculto para editar o título -->
+                    <form class="d-none d-flex" id="form-title{{el.id}}" method="GET" style="width:35rem;">
+                        <input class="form-control" type="text" id="inputText{{el.id}}" value="{{el.title}}"> <!-- Campo de texto preenchido com o título atual -->
+                        <button type="submit" class="btn" id="edit{{el.id}}"> <!-- Botão de salvar edição -->
+                            <i class="fa fa-edit link-warning"></i> <!-- Ícone de edição -->
+                        </button>
+                    </form>
+                </th>
 
-					<!-- Coluna do Status -->
-					<th scope="row">
-						{{el.status}} <!-- Exibe o status atual -->
+                <!-- Coluna de status -->
+                <th scope="row">
+                    {{el.status}} <!-- Mostra o status atual em texto -->
 
-						<!-- Select para alterar o status -->
-						<div class="SelDiv">
-							<select class="form-select" name="status" id="{{el.id}}">
-								{% for st in status_list %}
-									<option value="{{st.id}}" 
-										{% if el.status.id == st.id %}selected{% endif %}>
-										{{st.name}}
-									</option>
-								{% endfor %}
-							</select>
-						</div>
-					</th>
+                    <!-- Dropdown para alterar o status -->
+                    <div class="SelDiv">
+                        <select class="form-select" name="status" id="{{el.id}}"> <!-- Select com ID do item -->
+                            {% for st in status_list %} <!-- Loop nos status disponíveis -->
+                                <option value="{{st.id}}" 
+                                    {% if el.status.id == st.id %}selected{% endif %}> <!-- Define o status atual como selecionado -->
+                                    {{st.name}} <!-- Nome do status -->
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </th>
 
-					<!-- Coluna do Deletar -->
-					<th scope="row">
-						<a class="btn" href="{% url 'delete' el.id %}">
-							<i class="fa fa-trash link-danger"></i>
-						</a> <!-- Botão de deletar -->
-					</th>
-				</tr>
-			</tbody>
-			{% endfor %} <!-- Fim do loop -->
+                <!-- Coluna de deletar -->
+                <th scope="row">
+                    <a class="btn" id="btn-delete" data-delete="{{el.id}}"> <!-- Botão de deletar com data-id -->
+                        <i class="fa fa-trash link-danger"></i> <!-- Ícone de lixeira -->
+                    </a>
+                </th>
+            </tr> <!-- Fim da linha -->
+        </tbody>
+        {% endfor %} <!-- Fim do loop -->
+    </table> <!-- Fim da tabela -->
 
-		</table> <!-- Fim da tabela -->
+</div> <!-- Fim do container -->
 
-	</div> <!-- Fim do container -->
 {% endblock %} <!-- Fim do bloco de conteúdo -->
 
 
+{% block scripts %} <!-- Bloco específico para scripts JavaScript -->
 
-{% block scripts %} <!-- Início do bloco de scripts JavaScript -->
+<!-- Importação do SweetAlert2 para alertas -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script type="text/javascript"> 
 
-	// ============================
-	// Atualização do Título
-	// ============================
-	$("div.title").click(function () {
-		// Quando clica no título, esconde o título e mostra o formulário de edição
-		var data_id = $(this).attr("data-title"); // Pega o ID do item clicado
-		console.log(`Cliquei no ID do Titulo ${data_id}`);
+    // ================================
+    // 🔧 Função para editar o título
+    // ================================
 
-		// Mostra o formulário de edição
-		$("form#form-title" + data_id).removeClass('d-none');
-		// Esconde o texto do título
-		$("div#title" + data_id).addClass('d-none');
+    $("div.title").click(function () { // Quando o usuário clica no título
+        const data_id = $(this).attr("data-title"); // Pega o ID do item clicado
 
-		// Quando clica no botão de editar
-		$('button#edit' + data_id).on("click", function (e) {
-			e.preventDefault(); // Impede que o formulário envie da forma padrão
+        // Mostra o formulário de edição do título
+        $("form#form-title" + data_id).removeClass('d-none');
 
-			// Pega o novo valor do input
-			title = $('input#inputText' + data_id).val();
-			console.log(`Cliquei na Edição do Titulo ${title}`);
+        // Esconde a div que exibe o título atual
+        $("div#title" + data_id).addClass('d-none');
 
-			// Envia requisição AJAX para atualizar o título no backend
-			$.ajax({
-				type: 'GET',
-				url: '{% url "update-item" %}', // URL que trata a atualização
-				data: {
-					'data_id': data_id,
-					'title': title,
-				},
-				datatype: "json",
-				success: function (data) {
-					// Se deu certo, atualiza o texto do título na interface
-					if (data.status == "update-item") {
-						$("form#form-title" + data_id).addClass('d-none'); // Esconde o form
-						$("div#title" + data_id).removeClass('d-none');    // Mostra o título
-						$("#title" + data_id).html(data.title);            // Atualiza o texto
-					}
-				}
-			});
-		});
-	});
+        // Ao clicar no botão de editar (salvar)
+        $('button#edit' + data_id).on("click", function (e) {
+            e.preventDefault(); // Evita que o formulário recarregue a página
+
+            const title = $('input#inputText' + data_id).val(); // Captura o novo valor digitado no input
+
+            // Envia os dados via AJAX para atualizar o título no backend
+            $.ajax({
+                type: 'GET', // Método GET (poderia ser POST para mais segurança)
+                url: '{% url "update-item" %}', // URL Django para tratar atualização de item
+                data: {
+                    'data_id': data_id, // ID do item
+                    'title': title, // Novo título
+                },
+                datatype: "json", // Tipo de dado esperado
+                success: function (data) { // Função que executa se a requisição for bem-sucedida
+                    if (data.status == "update-item") { // Se o backend retornar sucesso
+                        // Esconde o formulário de edição
+                        $("form#form-title" + data_id).addClass('d-none');
+                        // Mostra novamente o título atualizado
+                        $("div#title" + data_id).removeClass('d-none');
+                        // Atualiza o conteúdo da div com o novo título
+                        $("#title" + data_id).html(data.title);
+
+                        // ✅ Alerta de sucesso usando SweetAlert2
+                        Swal.fire({
+                            icon: 'success', // Ícone verde de sucesso
+                            title: 'Título atualizado!', // Mensagem
+                            showConfirmButton: false, // Sem botão OK
+                            timer: 1500 // Dura 1.5 segundos
+                        });
+                    }
+                }
+            });
+        });
+    });
 
 
-	// ============================
-	// Atualização do Status
-	// ============================
-	$("div.SelDiv select").on('change', function () {
-		// Quando o select é alterado
-		var data_id = this.id; // ID do item
-		var status_id = $(this).find('option').filter(':selected').val(); // Novo status selecionado
+    // =================================
+    // 🔧 Função para atualizar o status
+    // =================================
 
-		console.log("data_id: ", data_id, "status_id: ", status_id);
+    $("div.SelDiv select").on('change', function () { // Ao mudar o valor do select
+        const data_id = this.id; // ID do item sendo alterado
+        const status_id = $(this).find('option').filter(':selected').val(); // ID do novo status selecionado
 
-		// Envia requisição AJAX para atualizar o status
-		$.ajax({
-			type: 'GET',
-			url: '{% url "update-status" %}', // URL que trata atualização de status
-			data: {
-				'data_id': data_id,
-				'status_id': status_id,
-			},
-			datatype: "json",
-			success: function (data) {
-				// Apenas log
-				console.log(data);
-			}
-		});
-	});
+        // Envia via AJAX a alteração de status
+        $.ajax({
+            type: 'GET', // Método GET
+            url: '{% url "update-status" %}', // URL Django que recebe o update
+            data: {
+                'data_id': data_id, // ID do item
+                'status_id': status_id, // Novo status
+            },
+            datatype: "json", // Tipo esperado
+            success: function (data) { // Se der certo
+                // ✅ Alerta visual de que o status foi alterado
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Status atualizado!',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            }
+        });
+    });
+
+
+    // =================================
+    // ❌ Função para deletar um item
+    // =================================
+
+    $(document).on("click", "a#btn-delete", function (e) { // Ao clicar no botão deletar
+        e.preventDefault(); // Impede o comportamento padrão (como navegar no link)
+
+        const todo_id = $(this).attr("data-delete"); // Captura o ID do item a ser deletado
+
+        // Alerta de confirmação antes de deletar
+        Swal.fire({
+            title: 'Tem certeza?', // Título do alerta
+            text: "Você não poderá desfazer essa ação!", // Texto de aviso
+            icon: 'warning', // Ícone de aviso
+            showCancelButton: true, // Mostra botão de cancelar
+            confirmButtonColor: '#d33', // Cor do botão confirmar (vermelho)
+            cancelButtonColor: '#3085d6', // Cor do botão cancelar (azul)
+            confirmButtonText: 'Sim, deletar!', // Texto do botão confirmar
+            cancelButtonText: 'Cancelar' // Texto do botão cancelar
+        }).then((result) => { // Quando o usuário escolhe uma opção
+            if (result.isConfirmed) { // Se ele clicou em confirmar
+                // Envia AJAX para deletar
+                $.ajax({
+                    type: 'GET',
+                    url: '{% url "delete" %}', // URL Django que deleta
+                    data: { 'todo_id': todo_id }, // Envia ID do item
+                    datatype: "json",
+                    success: function (data) { // Se deu certo
+                        if (data.status == "delete") { // Confirmação do backend
+                            // Remove visualmente a linha da tabela
+                            $("tbody tr#" + todo_id).fadeOut("slow", function () {
+                                $(this).remove(); // Remove do DOM
+                            });
+
+                            // ✅ Alerta de que foi deletado
+                            Swal.fire(
+                                'Deletado!', // Título
+                                'O item foi removido com sucesso.', // Texto
+                                'success' // Ícone
+                            );
+                        }
+                    }
+                });
+            }
+        });
+    });
+
 </script> 
 {% endblock %} <!-- Fim do bloco de scripts -->

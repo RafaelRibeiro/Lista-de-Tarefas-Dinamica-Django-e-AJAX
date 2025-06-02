@@ -29,10 +29,12 @@ def create_item(request):
 
 
 # View responsável por deletar um item específico da lista.
-def delete_item(request, id):
-    todo = get_object_or_404(TodoList, id=id)         # Busca o item pelo ID ou retorna erro 404 se não existir.
-    todo.delete()                                     # Deleta o item encontrado no banco de dados.
-    return redirect('/')                              # Após deletar, redireciona para a página inicial.
+def delete_item(request):
+    todo_id  = request.GET.get('todo_id')             # Recupera o parâmetro 'todo_id' enviado via GET (identificador do item).
+    todo = TodoList.objects.get(id=todo_id)           # Busca o item na tabela TodoList pelo ID.
+    todo.delete()                                      # Exclui o item do banco de dados.
+    data = {'status':'delete'}                         # Prepara uma resposta JSON com status de sucesso.
+    return JsonResponse(data)                           # Retorna a resposta JSON para a requisição AJAX.
 
 
 # View responsável por atualizar o título de um item (essa operação é feita via requisição AJAX).
